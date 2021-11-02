@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
+import os
 from pymongo import MongoClient
 # Add this with the rest of your import statements
 from bson.objectid import ObjectId
