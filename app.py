@@ -14,7 +14,11 @@ def video_url_creator(id_lst):
 
 app = Flask(__name__)
 
-client = MongoClient()
+# host = os.environ.get('MONGODB_URI', 'mongodb+srv://cluster0.2lvxa.mongodb.net/Cluster0')
+db_username = os.environ.get('DB_USERNAME')
+db_password = os.environ.get('DB_PASS')
+# client = MongoClient(host=host)
+client = MongoClient(f"mongodb+srv://{db_username}:{db_password}@cluster0.2lvxa.mongodb.net/Cluster0?retryWrites=true&w=majority")
 db = client.Playlister
 playlists = db.playlists
 
