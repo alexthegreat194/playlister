@@ -22,6 +22,7 @@ db_password = os.environ.get('DB_PASS')
 client = MongoClient(f"mongodb+srv://{db_username}:{db_password}@cluster0.2lvxa.mongodb.net/Cluster0?retryWrites=true&w=majority")
 db = client.Playlister
 playlists = db.playlists
+comments = db.comments
 
 @app.route('/')
 def playlists_index():
@@ -82,17 +83,30 @@ def playlists_edit(playlist_id):
     # Add the title parameter here
     return render_template('playlists_edit.html', playlist=playlist, title='Edit Playlist')
 
-@app.route('/playlists/<playlist_id>')
+@app.route('/playlists/<playlist_id>')  
 def playlists_show(playlist_id):
     """Show a single playlist."""
     playlist = playlists.find_one({'_id': ObjectId(playlist_id)})
-    return render_template('playlists_show.html', playlist=playlist)
+    playlist_comments = comments.find({'playlist_id': playlist_id})
+    return render_template('playlists_show.html', playlist=playlist, comments=playlist_comments)
 
 @app.route('/playlists/<playlist_id>/delete', methods=['POST'])
 def playlists_delete(playlist_id):
     """Delete one playlist."""
     playlists.delete_one({'_id': ObjectId(playlist_id)})
     return redirect(url_for('playlists_index'))
+
+@app.route('/playlists/comments', methods=['POST'])
+def comments_new():
+    """Submit a new comment."""
+    playlist_id = request.form.get("playlist_id")
+    comment = {
+        "title":request.form.get("title"),
+        "content":request.form.get("content"),
+        "playlist_id":playlist_id
+    }
+    comments.insert_one(comment)
+    return redirect(url_for(f"playlists_show", playlist_id=playlist_id))
 
 if __name__ == '__main__':
     app.run(debug=True)
